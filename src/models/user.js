@@ -27,8 +27,8 @@ const userSchema = new Schema({
         trim: true
     },
     picture: {
-        type: String,
-        required: false
+        public_id: String,
+        secure_url: String
     }
 });
 

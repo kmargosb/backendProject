@@ -13,13 +13,13 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    status: {
-        type: String,
-        required: true
-    },
     photoUrl: {
-        type: [String],
-        required: true
+        public_id:{
+            type: String
+        },
+        imageURL:{
+            type: String
+        }
     },
     user: {
         type: Schema.Types.ObjectId, 

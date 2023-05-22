@@ -7,7 +7,9 @@ const {
   logIn,
   pHome,
   usuario,
-  setUser
+  setUser,
+  removeUser,
+  addP
 } = require("../controllers/routes.controllers");
 
 
@@ -20,11 +22,15 @@ router.post("/login", logIn);
 
 //private routes
 
-router.get('/private_home', verifyToken, pHome);
+router.get('/private-homepage', verifyToken, pHome);
 
 router.get("/user", verifyToken, usuario);
 
-router.put("/user", verifyToken, setUser);
+router.post('/add-product', verifyToken, addP)
+
+router.put("/user", verifyToken,  setUser);
+
+router.delete("/user", verifyToken, removeUser);
 
 module.exports = router;
 
@@ -38,6 +44,7 @@ function verifyToken(req, res, next) {
     return res.status(401).send('peticion prohibida');
   }
     const payload = jwt.verify(token, 'secretkey')
+    console.log(payload)
     req.userId = payload._id;
     next();
 }
