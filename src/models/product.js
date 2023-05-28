@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 const productSchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: false
     },
     description: {
         type: String,
@@ -11,7 +11,7 @@ const productSchema = new Schema({
     },
     price: {
         type: Number,
-        required: true
+        required: false
     },
     photoUrl: {
         public_id:{

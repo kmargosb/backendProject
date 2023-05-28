@@ -1,16 +1,17 @@
 const userSchema = require("../models/user");
 const productSchema = require("../models/product");
 const User = require("../models/user");
+const Product = require("../models/product");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("../../middlewares/cloudinary.config");
-const Product = require("../models/product");
+const fs = require('fs-extra')
 
 // PUBLIC ROUTES
 exports.homePage = async (req, res) => {
-  await userSchema
-    .find()
-    .then((data) => res.json(data))
-    .catch((err) => res.json({ message: err }));
+  // await userSchema
+  //   .find()
+  //   .then((data) => res.json(data))
+  //   .catch((err) => res.json({ message: err }));
 };
 exports.singUp = async (req, res) => {
   // console.log(req.body);
@@ -44,32 +45,53 @@ exports.logIn = async (req, res) => {
   return res.status(200).json({ token });
 };
 
-
 // PRIVATE ROUTES
 exports.pHome = async (req, res) => {
   await productSchema
     .find()
     .then((data) => res.json(data))
-    .catch((err) => res.json({message: err}));
+    .catch((err) => res.json({ message: err }));
 };
 exports.addP = async (req, res) => {
-  const { userId } = req;
-  const { name, description, price, photoUrl } = req.body;  
-  // const result = await cloudinary.uploader.upload(req.files.path);
-  // console.log(result)
-  // const public_id = result.public_id;
-  // const imageURL = result.url;
-  
-  // console.log(newProduct);
-  const newProduct = new Product({
-    name,
-    description,
-    price,
-    photoUrl,
-    user: userId
-  });
-  await newProduct.save();
-}
+  try {
+    const { userId } = req;
+    const { name, description, price } = req.body;
+
+    const newProduct = new Product({
+      name,
+      description,
+      price,
+      user: userId,
+    });
+
+    // console.log(req.files.image);
+
+    if (req.files?.image) {
+      const result = await cloudinary.uploader.upload(
+        req.files.image.tempFilePath,
+        {
+          folder: "products",
+        }
+
+        
+      );
+
+      // console.log(result)
+
+      newProduct.photoUrl = {
+        public_id: result.public_id,
+        imageURL: result.secure_url,
+      };
+
+      fs.unlink(req.files.image.tempFilePath) // Elimina el archivo de ./upload
+    }
+
+    await newProduct.save();
+    res.json(newProduct);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 exports.usuario = async (req, res) => {
   const { userId } = req;
   await userSchema
