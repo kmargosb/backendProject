@@ -71,13 +71,9 @@ exports.addP = async (req, res) => {
         req.files.image.tempFilePath,
         {
           folder: "products",
-        }
-
-        
+        }        
       );
-
       // console.log(result)
-
       newProduct.photoUrl = {
         public_id: result.public_id,
         imageURL: result.secure_url,
@@ -100,37 +96,42 @@ exports.usuario = async (req, res) => {
     .catch((err) => res.json({ message: err }));
 };
 exports.setUser = async (req, res) => {
+  try{
   const { userId } = req;
   const { username, firstname, lastname, email, password, picture } = req.body;
 
-  console.log(req.files);
+  const newUser = new User({
+    username,
+    firstname,
+    lastname,
+    email,
+    password,
+    picture
+  })
 
-  if (req.files && req.files.picture) {
-    try {
-      const uploadedImage = await cloudinary.uploader.upload(
-        req.files.picture.tempFilePath,
-        {
-          folder: "profiles",
-        }
-      );
-
-      const { public_id, secure_url } = uploadedImage;
-      req.body.picture = { public_id, secure_url };
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(500)
-        .json({ message: "Error al subir la imagen a Cloudinary" });
-    }
+  if (req.files?.image) {
+    const result = await cloudinary.uploader.upload(
+      req.files.image.tempFilePath,
+      {
+        folder: "users",
+      }       
+    );
+    // console.log(result)
+    newUser.picture = {
+      public_id: result.public_id,
+      secure_url: result.secure_url
+    };
+    fs.unlink(req.files.image.tempFilePath) // Elimina el archivo de ./upload
   }
-
   await userSchema
     .updateOne(
       { _id: userId },
-      { $set: { username, firstname, lastname, email, password, picture } }
+      { $set: { username, firstname, lastname, email, password, picture: newUser.picture } }
     )
-    .then((data) => res.json(data))
-    .catch((err) => res.json({ message: err }));
+    res.json(newUser);
+  } catch (error){
+    return res.status(500).json({ message: error.message });
+  }    
 };
 exports.removeUser = async (req, res) => {
   const { userId } = req;

@@ -27,8 +27,12 @@ const userSchema = new Schema({
         trim: true
     },
     picture: {
-        public_id: String,
-        secure_url: String
+        public_id:{
+          type: String  
+        },
+        secure_url:{
+            type: String
+        }
     }
 });
 
