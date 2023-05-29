@@ -98,12 +98,12 @@ exports.usuario = async (req, res) => {
 exports.setUser = async (req, res) => {
   try{
   const { userId } = req;
-  const { username, firstname, lastname, email, password, picture } = req.body;
+  const { firstname, lastname, username, email, password, picture } = req.body;
 
   const newUser = new User({
-    username,
     firstname,
     lastname,
+    username,
     email,
     password,
     picture
@@ -126,7 +126,7 @@ exports.setUser = async (req, res) => {
   await userSchema
     .updateOne(
       { _id: userId },
-      { $set: { username, firstname, lastname, email, password, picture: newUser.picture } }
+      { $set: { firstname, lastname, username, email, password, picture: newUser.picture } }
     )
     res.json(newUser);
   } catch (error){
